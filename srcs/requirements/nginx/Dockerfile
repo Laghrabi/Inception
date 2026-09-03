@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y nginx openssl && \
 ARG DOMAIN_NAME
 
 RUN mkdir -p /etc/nginx/ssl
-RUN openssl req -x509 -nodes -days 365 -out /etc/nginx/ssl/iception.crt -keyout /etc/nginx/ssl/iception.key \
+RUN openssl req -x509 -nodes -days 365 -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key \
     -subj "/C=MA/ST=Marrakesh/L=Benguerir/O=1337/OU=Student/CN=${DOMAIN_NAME}"
 
 COPY /conf/nginx.conf /etc/nginx/conf.d/default.conf
