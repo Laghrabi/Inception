@@ -41,12 +41,25 @@ services:
   static_site:
     build: ./requirements/bonus/static_site
     container_name: static_site
+    restart: always
     networks:
       - inception
 
   adminer:
     build: ./requirements/bonus/adminer
     container_name: adminer
+    networks:
+      - inception
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
     networks:
       - inception
 
@@ -67,3 +80,9 @@ volumes:
       type: none
       o: bind
       device: /home/claghrab/data/wordpress
+  portainer_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/claghrab/data/portainer
+      o: bind

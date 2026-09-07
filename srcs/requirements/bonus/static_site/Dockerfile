@@ -1,7 +1,7 @@
 FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y python3 \
-    && apt-get clean && rm -rf /val/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY html /var/www/html
 
