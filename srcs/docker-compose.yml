@@ -6,6 +6,11 @@ services:
     env_file: .env
     networks:
       - inception
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     volumes:
       - mariadb_data:/var/lib/mysql
 
@@ -15,7 +20,8 @@ services:
     restart: always
     env_file: .env
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     networks:
       - inception
     volumes:
@@ -38,6 +44,30 @@ services:
     volumes:
       - wordpress_data:/var/www/wordpress
 
+  static_site:
+    build: ./requirements/bonus/static_site
+    container_name: static_site
+    restart: always
+    networks:
+      - inception
+
+  adminer:
+    build: ./requirements/bonus/adminer
+    container_name: adminer
+    restart: always
+    networks:
+      - inception
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - inception
+
 networks:
   inception:
     driver: bridge
@@ -55,3 +85,9 @@ volumes:
       type: none
       o: bind
       device: /home/claghrab/data/wordpress
+  portainer_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/claghrab/data/portainer
+      o: bind
