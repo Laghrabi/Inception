@@ -1,20 +1,21 @@
 #!/bin/bash
 
-if [ ! -d "/var/lib/mysql/$MYSQL_DATABASE" ]; then
-    echo "Initializing database for claghrab..."
+mkdir -p /run/mysqld
+chown -R mysql:mysql /run/mysqld
 
-    service mariadb start
+if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
+    echo "Initializing database..."
 
-    sleep 5
+    cat << EOF > /tmp/init.sql
+CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
+CREATE USER IF NOT EXISTS \`${MYSQL_USER}\`@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO \`${MYSQL_USER}\`@'%';
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+FLUSH PRIVILEGES;
+EOF
 
-    mariadb -u root -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;"
-    mariadb -u root -e "CREATE USER IF NOT EXISTS \`${MYSQL_USER}\`@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-    mariadb -u root -e "GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO \`${MYSQL_USER}\`@'%';"
-    mariadb -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
-    # mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
-
-    mysqladmin -u root -p"${MYSQL_ROOT_PASSWORD}" shutdown
+    exec mysqld --user=mysql --init-file=/tmp/init.sql
 fi
 
-echo "Starting MariaDB..."
-exec mysqld_safe
+echo "Starting MariaDB normally..."
+exec mysqld --user=mysql
