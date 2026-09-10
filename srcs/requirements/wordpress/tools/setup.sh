@@ -27,8 +27,12 @@ if [ ! -f "$WP_PATH/wp-config.php" ]; then
         --dbname=$MYSQL_DATABASE \
         --dbuser=$MYSQL_USER \
         --dbpass=$MYSQL_PASSWORD \
-        --dbhost=mariadb \
+        --dbhost=mariadb:3306 \
         --allow-root
+
+    echo "Configuring dynamic URL and port routing..."
+    wp config set WP_HOME "'https://' . \$_SERVER['HTTP_HOST']" --raw --allow-root
+    wp config set WP_SITEURL "'https://' . \$_SERVER['HTTP_HOST']" --raw --allow-root
 
     echo "Installing WordPress site..."
     wp core install \

@@ -1,6 +1,7 @@
 services:
   mariadb:
     build: ./requirements/mariadb
+    image: mariadb
     container_name: mariadb
     restart: always
     env_file: .env
@@ -10,18 +11,24 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
     volumes:
       - mariadb_data:/var/lib/mysql
 
   wordpress:
     build: ./requirements/wordpress
+    image: wordpress
     container_name: wordpress
     restart: always
     env_file: .env
     depends_on:
       mariadb:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/9000' 2> /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - inception
     volumes:
@@ -32,11 +39,13 @@ services:
       context: ./requirements/nginx
       args:
         - DOMAIN_NAME=${DOMAIN_NAME}
+    image: ngnix
     container_name: nginx
     restart: always
     env_file: .env
     depends_on:
-      - wordpress
+      wordpress:
+        condition: service_healthy
     ports:
       - "443:443"
     networks:
@@ -46,6 +55,7 @@ services:
 
   static_site:
     build: ./requirements/bonus/static_site
+    image: static_site
     container_name: static_site
     restart: always
     networks:
@@ -53,6 +63,7 @@ services:
 
   adminer:
     build: ./requirements/bonus/adminer
+    image: adminer
     container_name: adminer
     restart: always
     networks:
@@ -71,6 +82,8 @@ services:
 networks:
   inception:
     driver: bridge
+    name: inception
+
 
 volumes:
   mariadb_data:
