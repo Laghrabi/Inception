@@ -54,5 +54,5 @@ fi
 
 mkdir -p /run/php
 
-echo "Starting PHP-FPM 7.4..."
+echo "Starting PHP-FPM 8.2..."
 exec /usr/sbin/php-fpm8.2 -F

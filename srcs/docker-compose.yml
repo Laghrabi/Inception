@@ -69,8 +69,10 @@ services:
     networks:
       - inception
 
+  
   portainer:
-    image: portainer/portainer-ce:latest
+    build: ./requirements/bonus/portainer
+    image: portainer
     container_name: portainer
     restart: always
     volumes:
