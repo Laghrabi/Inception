@@ -35,8 +35,7 @@ Your browser will warn about the certificate (it's self-signed) — proceed anyw
 
 ## Credentials
 
-- Usernames / domain / DB name → `.env` file
-- Passwords → files inside `secrets/`
+- Usernames / domain / DB name / passwords → `.env` file
 
 Both are at the project root and are not committed to Git.
 
